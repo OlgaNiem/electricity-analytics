@@ -1,16 +1,15 @@
-import axios from 'axios';
-import { ForecastResponse, TemperatureData } from '@/types/weather';
+import { TemperatureData } from '@/types/weather';
+import { parseTemperatureCsv } from './parseTemperatureCsv';
+import { fetchVaasaWeather } from './fetchVaasaWeather';
 
-const API_KEY = process.env.OPENWEATHER_API_KEY!;
-const CITY = 'Vaasa';
+export async function getTemperatureData(city: string): Promise<TemperatureData[]> {
+  if (city.toLowerCase() === 'oulu') {
+    return parseTemperatureCsv();
+  }
 
-export async function getTemperatureData(): Promise<TemperatureData[]> {
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&units=metric&appid=${API_KEY}`;
+  if (city.toLowerCase() === 'vaasa') {
+    return fetchVaasaWeather();
+  }
 
-  const response = await axios.get<ForecastResponse>(url);
-
-  return response.data.list.map((item) => ({
-    time: item.dt_txt,
-    temp: item.main.temp,
-  }));
+  throw new Error(`Unsupported city: ${city}`);
 }

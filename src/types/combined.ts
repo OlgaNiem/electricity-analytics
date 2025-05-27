@@ -3,3 +3,8 @@ export interface CombinedData {
   temp: number;
   price: number | null;
 }
+
+export interface CombinedListProps {
+  city: string;
+  date: string;
+}

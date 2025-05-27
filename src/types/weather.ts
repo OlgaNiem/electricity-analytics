@@ -1,16 +1,22 @@
+export interface TemperatureData {
+  time: string;
+  temp: number;
+}
+
+export interface ForecastMain {
+  temp: number;
+}
+
 export interface ForecastItem {
   dt: number;
   dt_txt: string;
-  main: {
-    temp: number;
-  };
+  main: ForecastMain;
 }
 
 export interface ForecastResponse {
   list: ForecastItem[];
 }
 
-export interface TemperatureData {
-  time: string;
-  temp: number;
+export interface TemperatureListProps {
+  city: string;
 }
