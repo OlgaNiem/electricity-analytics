@@ -3,20 +3,19 @@ import { getSpotPricesRange } from './getSpotPrices';
 import { TemperatureData } from '@/types/weather';
 import { SpotPrice } from '@/types/prices';
 import { CombinedData } from '@/types/combined';
+import { calculateScore } from './scoring';
 
 export async function getCombinedData(city: string, dateStr: string): Promise<CombinedData[]> {
   const temps: TemperatureData[] = await getTemperatureData(city);
 
   const selectedDate = new Date(dateStr);
-  selectedDate.setHours(0, 0, 0, 0);
-
-  const dayStart = selectedDate;
-  const dayEnd = new Date(selectedDate);
+  const dayStart = new Date(selectedDate.setHours(0, 0, 0, 0));
+  const dayEnd = new Date(dayStart);
   dayEnd.setHours(23, 59, 59, 999);
 
-  const limitedTemps = temps.filter((t) => {
-    const time = new Date(t.time);
-    return time >= dayStart && time <= dayEnd;
+  const limitedTemps = temps.filter(t => {
+    const d = new Date(t.time);
+    return d >= dayStart && d <= dayEnd;
   });
 
   if (!limitedTemps.length) {
@@ -40,10 +39,14 @@ export async function getCombinedData(city: string, dateStr: string): Promise<Co
       (p) => new Date(p.date).toISOString() === new Date(time).toISOString()
     );
 
+    const price = priceMatch?.value ?? null;
+    const score = price !== null ? calculateScore(price, temp) : null;
+
     return {
       time,
       temp,
-      price: priceMatch?.value ?? null,
+      price,
+      score,
     };
   });
 }
